@@ -17,9 +17,10 @@ while True:
     data = ser.readline()
     print(data.decode())
     x.append(i)
-    y.append(data.decode())
+    y.append(data.decode()[2])
+    # print(data.decode())
 
     plt.scatter(i, float(data.decode()))
     i += 1
     plt.show()
-    plt.pause(0.0001)  # Note this correction
+    plt.pause(0.01)  # Note this correction
