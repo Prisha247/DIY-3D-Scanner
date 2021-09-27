@@ -3,8 +3,8 @@
 Servo pan; //Servo controlling panning
 Servo tilt; // Servo controlling tilting
 
-// pan angle range: 0-180
-// tilt angle range: 30-120
+// pan angle range: 0-180, interval = 10
+// tilt angle range: 30-120, interval = 10
 int pan_pos = 0;    // variable to store the servo position
 int tilt_pos =30;
 int sensorPin = A0;
@@ -29,25 +29,25 @@ void setup() {
 void loop() {  
   // Pan left-to-right
   while(tilt_pos < 120) {
-      for (pan_pos = 0; pan_pos <= 180; pan_pos += 1) {
+      for (pan_pos = 0; pan_pos <= 180; pan_pos += 10) {
         pan.write(pan_pos);
-        delay(50);
-//        Serial.print(pan_pos);
-//        Serial.print(" ");
-//        Serial.print(tilt_pos);
-//        Serial.print(" ");
+        delay(100);
+        Serial.print(pan_pos);
+        Serial.print(" ");
+        Serial.print(tilt_pos);
+        Serial.print(" ");
         Serial.println(read_sharp_IR(sensorPin));
       }
       tilt_pos += 10;
       tilt.write(tilt_pos);
       delay(50);
-      for (pan_pos = 180; pan_pos >= 0; pan_pos -= 1) {
+      for (pan_pos = 180; pan_pos >= 0; pan_pos -= 10) {
         pan.write(pan_pos);             
-        delay(50);
-//        Serial.print(pan_pos);
-//        Serial.print(" ");
-//        Serial.print(tilt_pos);
-//        Serial.print(" ");
+        delay(100);
+        Serial.print(pan_pos);
+        Serial.print(" ");
+        Serial.print(tilt_pos);
+        Serial.print(" ");
         Serial.println(read_sharp_IR(sensorPin));
       }
       tilt_pos += 10;
@@ -65,7 +65,7 @@ void loop() {
 int read_sharp_IR(int sensorPin) // clean read of r
 {
   uint32_t t;
-  uint16_t x, y, z, res;
+  uint16_t x, y, z, w, res;
 
   t = millis();
   if (it_is_time(t, loop_time, LOOP_INTERVAL)) 
@@ -73,8 +73,10 @@ int read_sharp_IR(int sensorPin) // clean read of r
     x = analogRead(sensorPin);
     y = analogRead(sensorPin);
     z = analogRead(sensorPin);
-  
-    res = min(min(x, y), z);
+    w = analogRead(sensorPin);
+    res = min(min(min(x, y), z), w);
+
+//    res = min(min(x, y), z);
     loop_time = t;
     return res;
   }
