@@ -14,13 +14,13 @@ ser.close()
 ser.open()
 
 while True:
-    data = ser.readline()
-    print(data.decode())
+    data = ser.readline().decode()
+    data_list = [int(x) for x in data.split()]
+    # print(data_list)
     x.append(i)
-    y.append(data.decode()[2])
-    # print(data.decode())
+    y.append(data_list[2])
 
-    plt.scatter(i, float(data.decode()))
+    plt.scatter(i, data_list[2])
     i += 1
     plt.show()
-    plt.pause(0.01)  # Note this correction
+    plt.pause(0.001)  # Note this correction

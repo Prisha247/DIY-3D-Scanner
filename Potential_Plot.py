@@ -9,7 +9,7 @@ import numpy as np
 ser = serial.Serial('COM4',9600)
 ser.flushInput()
 
-plot_window = 50
+plot_window = 500
 y_var = np.array(np.zeros([plot_window]))
 
 plt.ion()
@@ -34,6 +34,7 @@ while True:
         ax.autoscale_view()
         fig.canvas.draw()
         fig.canvas.flush_events()
+        plt.pause(0.01)
     except:
         print("Keyboard Interrupt")
         break
