@@ -6,10 +6,6 @@ import time
 import pandas as pd 
 import seaborn as sns
 
-ser = serial.Serial('COM4',9600) #check on com value before testing
-ser.close()
-ser.open() 
-
 # data collection params
 pan_i = 40
 pan_f = 130
@@ -20,6 +16,9 @@ tilt_interval = 10
 pan_len = int((pan_f-pan_i)/pan_interval) + 1
 tilt_len = int((tilt_f-tilt_i)/tilt_interval) + 1
 
+ser = serial.Serial('COM4',9600) #check on com value before testing
+ser.close()
+ser.open() 
 
 def read_ser_data():
     ''' Reads data from serial and parses each line into the following format:
@@ -30,20 +29,15 @@ def read_ser_data():
     
     return parsed_ser_data
 
-def run_live_visualization():
+def collect_data():
+
+    with open("heatmap_labels_with_data.csv", 'w') as fd:
+        fd.write("Pan,Tilt,Inches\n")
 
     # initialize data matrix
     size = (pan_len, tilt_len)
     m = np.zeros(size)
     m[:,:] = np.nan
-
-    # create the figure
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # im = ax.imshow(m)
-    # im = ax.imshow(np.random.random(size))
-
-    # plt.show(block=False)
 
     # length of file
     num_pts = pan_len*tilt_len
@@ -57,40 +51,51 @@ def run_live_visualization():
         ser_data = read_ser_data()
         print(ser_data)
 
+        # load into csv with labels
+        with open("heatmap_labels_with_data.csv", 'a') as fd:
+            fd.write(f"{ser_data[0]},{ser_data[1]},{ser_data[2]}\n")
+        
         # turn pan tilt angles into coordinates
         pan = (ser_data[0]-pan_i)/pan_interval
         tilt = (ser_data[1]-tilt_i)/tilt_interval
         print(pan, tilt)
-        # replace the image contents
+
+        # update matrix
         m[int(pan), int(tilt)] = ser_data[2]
-        # im.set_array(np.array(m))
-
-        # plt.imshow(m, cmap='hot', interpolation='nearest')
-        # ax = sns.heatmap(m, linewidth=0.5)
-        # plt.show()
-
-        # redraw the figure
-        # fig.canvas.draw()
-        # fig.canvas.flush_events()
 
 
     # save data to csv
     np.savetxt("heatmap_matrix.csv", np.array(m), delimiter=",")
-
-    # pd.dDataFrame(m).to_csv("heatmap_matrix.csv")
-    print("saved graph")
+    print("saved matrix")
 
 def plot_existing_data():
-    file = open("heatmap_matrix.csv")
-    m = np.loadtxt(file, delimiter=",")
-    m = np.rot90(m, 1)
-    m = np.flip(m,1)
-    # m = np.transpose(m)
-    ax = sns.heatmap(m, linewidth=0.5)
+    # file = open("heatmap_matrix.csv")
+    # m = np.loadtxt(file, delimiter=",")
+    # m = np.rot90(m, 1)
+    # m = np.flip(m,1)
+    # # m = np.transpose(m)
+    # ax = sns.heatmap(m, linewidth=0.5)
+    # plt.show()
+
+    # plotting with labels
+    # file = open("heatmap_labels_with_data.csv")
+
+    df = pd.read_csv('heatmap_labels_with_data.csv',header=0)  
+    # m = np.loadtxt(file, delimiter=",")
+    # m = np.rot90(m, 1)
+
+    # df = df.pivot("Pan", "Tilt", "Inches")
+    df = pd.pivot_table(df, index='Pan', columns='Tilt', values='Inches')
+
+    # perform translations to make it look right
+    np_df = df.to_numpy()
+    np_df = np.rot90(np_df, 1)
+    np_df = np.flip(np_df,1)
+    ax = sns.heatmap(np_df)
     plt.show()
 
+
 if __name__ == "__main__":
-    # print(pan_len, tilt_len)
-    # run_live_visualization()
+    # collect_data()
     plot_existing_data()
 
