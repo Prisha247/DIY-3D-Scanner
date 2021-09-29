@@ -17,6 +17,8 @@ pan_interval = 5
 tilt_i = 50
 tilt_f = 130
 tilt_interval = 10
+pan_len = int((pan_f-pan_i)/pan_interval) + 1
+tilt_len = int((tilt_f-tilt_i)/tilt_interval) + 1
 
 
 def read_ser_data():
@@ -31,25 +33,23 @@ def read_ser_data():
 def run_live_visualization():
 
     # initialize data matrix
-    pan_len = int((pan_f-pan_i)/pan_interval) + 1
-    tilt_len = int((tilt_f-tilt_i)/tilt_interval) + 1
     size = (pan_len, tilt_len)
     m = np.zeros(size)
     m[:,:] = np.nan
 
     # create the figure
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
     # im = ax.imshow(m)
-    im = ax.imshow(np.random.random(size))
+    # im = ax.imshow(np.random.random(size))
 
-    plt.show(block=False)
+    # plt.show(block=False)
 
     # length of file
     num_pts = pan_len*tilt_len
 
     # draw some data in loop
-    for i in range(20):
+    for i in range(num_pts):
         # wait for a bit
         time.sleep(0.001)
 
@@ -73,21 +73,24 @@ def run_live_visualization():
         # fig.canvas.draw()
         # fig.canvas.flush_events()
 
-    # ax = sns.heatmap(m, linewidth=0.5)
-    # plt.show()
-    # save data to csv
-    np.savetxt("heatmap_matrix.csv", m, delimiter=",")
 
-    # pd.DataFrame(m).to_csv("heatmap_matrix.csv")
+    # save data to csv
+    np.savetxt("heatmap_matrix.csv", np.array(m), delimiter=",")
+
+    # pd.dDataFrame(m).to_csv("heatmap_matrix.csv")
     print("saved graph")
 
 def plot_existing_data():
     file = open("heatmap_matrix.csv")
     m = np.loadtxt(file, delimiter=",")
+    m = np.rot90(m, 1)
+    m = np.flip(m,1)
+    # m = np.transpose(m)
     ax = sns.heatmap(m, linewidth=0.5)
     plt.show()
 
 if __name__ == "__main__":
+    # print(pan_len, tilt_len)
     # run_live_visualization()
     plot_existing_data()
 

@@ -27,7 +27,7 @@ void setup() {
 
 void loop() {  
   // Pan left-to-right
-  while(tilt_pos < 130) {
+  while(tilt_pos <= 130) {
       for (pan_pos = 40; pan_pos <= 130; pan_pos += 5) {
         pan.write(pan_pos);
         delay(500);

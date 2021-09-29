@@ -6,8 +6,8 @@ Servo tilt; // Servo controlling tilting
 
 // pan angle range: 0-180
 // tilt angle range: 60-130
-int pan_pos = 40;    // variable to store the servo position
-int tilt_pos = 90;
+int pan_pos = 90;    // variable to store the servo position
+int tilt_pos = 130;
 int sensorPin = A0;
 
 void setup() {
