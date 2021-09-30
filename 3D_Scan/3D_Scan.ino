@@ -1,20 +1,20 @@
- #include <Servo.h>
+/* This script performs a 3D scan and outputs data in the form [pan_angle, tilt_angle, sensor_reading_in_inches] in serial. */
+
+#include <Servo.h>
 
 Servo pan; //Servo controlling panning
 Servo tilt; // Servo controlling tilting
 
-// pan angle range: 40-100, interval = 10
+// pan angle range: 40-100, interval = 5
 // tilt angle range: 50-130, interval = 10
-int pan_pos = 90;    //
-int tilt_pos = 50; // initla tilt position
+
+// Starting positions of servos
+int pan_pos = 90;
+int tilt_pos = 50;
 int sensorPin = A0;
 
 uint16_t LOOP_INTERVAL = 20;
 uint32_t loop_time;
-bool it_is_time(uint32_t t, uint32_t t0, uint16_t dt) {
-  return ((t >= t0) && (t - t0 >= dt)) ||         // The first disjunct handles the normal case
-            ((t < t0) && (t + (~t0) + 1 >= dt));  //   while the second handles the overflow case
-}
 
 void setup() {
   Serial.begin(9600);
@@ -37,6 +37,7 @@ void loop() {
         Serial.print(" ");
         Serial.println(read_sharp_IR(sensorPin));
       }
+      // Update tilt position by moving it upwards
       tilt_pos += 10;
       tilt.write(tilt_pos);
       delay(50);
@@ -53,18 +54,22 @@ void loop() {
       tilt.write(tilt_pos);
       delay(50);
   }
-  
-//  Serial.println("Completed Data Gathering");
-  
-  // Return to original spot
+    
+  // Return to neutral position
   pan.write(90);
   tilt.write(90);
+}
+
+
+bool it_is_time(uint32_t t, uint32_t t0, uint16_t dt) { // Checks whether we should take data yet
+  return ((t >= t0) && (t - t0 >= dt)) ||         // The first disjunct handles the normal case
+            ((t < t0) && (t + (~t0) + 1 >= dt));  //   while the second handles the overflow case
 }
 
 int read_sharp_IR(int sensorPin) // clean read of IR values, returns distance in inches
 {
   uint32_t t;
-  uint16_t x, y, z, w, res;
+  uint16_t x, y, z, res;
 
   t = millis();
   if (it_is_time(t, loop_time, LOOP_INTERVAL)) 
@@ -72,13 +77,11 @@ int read_sharp_IR(int sensorPin) // clean read of IR values, returns distance in
     x = analogRead(sensorPin);
     y = analogRead(sensorPin);
     z = analogRead(sensorPin);
-    w = analogRead(sensorPin);
-//    res = min(min(min(x, y), z), w);
 
     res = min(min(x, y), z);
-    float e=2.71828;
-
+    
     // convert to distance in inches
+    float e=2.71828;
     res = 54.692*pow(e, -0.004*res);
     
     loop_time = t;

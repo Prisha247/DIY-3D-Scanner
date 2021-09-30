@@ -1,14 +1,13 @@
-
 #include <Servo.h>
+
+// Set servo positions to center point. Run this before collecting data to make sure the sensor is aligned correctly. 
 
 Servo pan; //Servo controlling panning
 Servo tilt; // Servo controlling tilting
 
-// pan angle range: 0-180
-// tilt angle range: 60-130
-int pan_pos = 90;    // variable to store the servo position
+// Set positions to center point
+int pan_pos = 90;
 int tilt_pos = 90;
-int sensorPin = A0;
 
 void setup() {
   Serial.begin(9600);
@@ -20,6 +19,6 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // n/a
 
 }
